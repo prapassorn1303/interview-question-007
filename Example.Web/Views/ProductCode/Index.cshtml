@@ -1,0 +1,74 @@
+@model IReadOnlyList<ProductCodeItem>
+@{
+    ViewData["Title"] = "Product Code";
+    var search = ViewData["Search"] as string;
+}
+<section class="product-panel">
+    <header class="product-panel-header"><h1>PRODUCT</h1></header>
+    <div class="product-panel-body">
+        @if (TempData["Message"] is string message)
+        {
+            <div class="alert alert-success" role="status">@message</div>
+        }
+        @if (TempData["Error"] is string error)
+        {
+            <div class="alert alert-danger" role="alert">@error</div>
+        }
+        <div class="product-toolbar">
+            <form asp-controller="ProductCode" asp-action="Add" method="post" class="product-entry-form">
+                <label for="productCode">รหัสสินค้า</label>
+                <input id="productCode" name="code" class="form-control product-code-input" maxlength="35" inputmode="text" autocomplete="off" placeholder="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX" required />
+                <button class="btn btn-add" type="submit">ADD</button>
+            </form>
+        </div>
+        <form asp-controller="ProductCode" asp-action="Index" method="get" class="search-form mb-3">
+            <label for="search">ค้นหา</label>
+            <input id="search" name="search" value="@search" class="form-control" maxlength="35" inputmode="text" autocomplete="off" placeholder="รหัสสินค้า" />
+            <button class="btn btn-success" type="submit">Search</button>
+        </form>
+        <div class="table-responsive">
+            <table class="table product-table align-middle mb-0">
+                <thead><tr><th scope="col">Id</th><th scope="col">รหัสสินค้า (30 ตัวอักษร)</th><th scope="col">View</th><th scope="col">Delete</th></tr></thead>
+                <tbody>
+                @for (var i = 0; i < Model.Count; i++)
+                {
+                    var item = Model[i];
+                    <tr>
+                        <th scope="row">@(i + 1)</th>
+                        <td class="product-code">@item.Code</td>
+                        <td><button type="button" class="btn btn-qr" data-bs-toggle="modal" data-bs-target="#qrModal" data-code="@item.Code" aria-label="QR for @item.Code">QR</button></td>
+                        <td><button type="button" class="btn btn-delete" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.Id" data-code="@item.Code" aria-label="Delete @item.Code">ลบ</button></td>
+                    </tr>
+                }
+                @if (Model.Count == 0)
+                {
+                    <tr><td colspan="4" class="text-center text-muted py-4">@(string.IsNullOrEmpty(search) ? "ยังไม่มีรหัสสินค้า กรุณากด ADD เพื่อสร้างรายการ" : "ไม่พบรหัสสินค้าที่ค้นหา")</td></tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+<div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+        <div class="modal-header"><h2 class="modal-title fs-5" id="qrTitle">Product Code QR</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+        <div class="modal-body text-center"><div id="qrCode" class="qr-code" role="img" aria-label="Product code QR"></div><p id="qrValue" class="product-code mt-3 mb-0"></p></div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+    </div></div>
+</div>
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+        <div class="modal-header"><h2 class="modal-title fs-5" id="deleteTitle">Delete Product Code</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+        <div class="modal-body"><p class="mb-0">ต้องการลบข้อมูล รหัสสินค้า <span id="deleteValue" class="product-code"></span> หรือไม่ ?</p></div>
+        <form asp-controller="ProductCode" asp-action="Delete" method="post">
+            <input type="hidden" name="id" id="deleteId" />
+            <input type="hidden" name="search" value="@search" />
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-danger">Delete</button></div>
+        </form>
+    </div></div>
+</div>
+@section Scripts {
+    <script src="~/lib/qrcode/qrcode.min.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+}
+

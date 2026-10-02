@@ -1,0 +1,9 @@
+@model ErrorViewModel
+@{ ViewData["Title"] = "Error"; }
+<h1 class="h3">Unable to complete your request</h1>
+<p>Please try again later.</p>
+@if (Model.ShowRequestId)
+{
+    <p class="text-muted">Request ID: <code>@Model.RequestId</code></p>
+}
+
